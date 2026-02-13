@@ -1,0 +1,187 @@
+.article {
+  max-width: 720px;
+  margin: 2rem 0;
+  padding: 0 0.5rem;
+}
+
+.mainTitle {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.purpose {
+  margin: 0 0 1.5rem 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.aiBanner {
+  margin: 0 0 1.5rem 0;
+  padding: 0.75rem 1rem;
+  background: rgba(234, 179, 8, 0.15);
+  border: 1px solid var(--warning);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.aiBanner code {
+  background: var(--surface);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.85em;
+}
+
+.section {
+  margin: 1.5rem 0;
+  padding: 1rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.sectionTitle {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.sectionHint {
+  margin: 0 0 1rem 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.ideaList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ideaList > li {
+  margin: 0.5rem 0;
+}
+
+.ideaList ul {
+  margin: 0.25rem 0 0 1rem;
+  padding-left: 1rem;
+}
+
+.phaseTitle {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.phase0 p {
+  margin: 0.4rem 0;
+  font-size: 0.95rem;
+}
+
+.phase0 ul {
+  margin: 0.25rem 0 0 1rem;
+}
+
+.takeCard {
+  margin: 1rem 0;
+  padding: 1rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.takeRole {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.thesis {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.takePoints {
+  margin: 0.35rem 0 0 0;
+  padding-left: 1.25rem;
+  font-size: 0.9rem;
+}
+
+.takePoints li {
+  margin: 0.2rem 0;
+}
+
+.debate {
+  margin: 0.5rem 0;
+}
+
+.debate h4 {
+  margin: 1rem 0 0.35rem 0;
+  font-size: 1rem;
+}
+
+.prompt {
+  margin: 0.25rem 0 0.5rem 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.debateTakes {
+  margin: 0.5rem 0 0 1rem;
+  padding-left: 1rem;
+  font-size: 0.9rem;
+}
+
+.debateTakes li {
+  margin: 0.3rem 0;
+}
+
+.synthesis {
+  margin: 0.75rem 0;
+  padding: 0.75rem 1rem;
+  background: var(--surface);
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.verdictBlock {
+  margin: 0.5rem 0 1rem 0;
+  padding: 1rem;
+  background: var(--surface);
+  border-radius: 8px;
+}
+
+.verdictValue {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.mvp,
+.experiments,
+.killCriteria,
+.checklists {
+  margin: 1rem 0;
+}
+
+.mvp h4,
+.experiments h4,
+.killCriteria h4,
+.checklists h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+}
+
+.experimentCard {
+  margin: 0.5rem 0;
+  padding: 0.6rem 0.85rem;
+  background: var(--surface);
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.checklists p {
+  margin: 0.4rem 0;
+  font-size: 0.9rem;
+}

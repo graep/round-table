@@ -1,0 +1,59 @@
+.wrapper {
+  margin: 1rem 0;
+  padding: 1rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.title {
+  margin: 0 0 0.35rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.hint {
+  margin: 0 0 0.5rem 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.coreList {
+  margin: 0 0 1rem 0;
+  padding-left: 1.25rem;
+  font-size: 0.9rem;
+}
+
+.coreItem {
+  margin: 0.2rem 0;
+}
+
+.securityRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.checkLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.checkLabel input {
+  cursor: pointer;
+}
+
+.suggested {
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+
+.securityHint {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
