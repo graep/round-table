@@ -7,6 +7,8 @@ export interface ExpertOpinion {
   verdict: 'strong' | 'neutral' | 'weak';
   opinion: string;
   guiding_questions_considered: string[];
+  /** Top risks from this expert's perspective; each item is a short phrase (e.g. "Execution risk: validate capacity"). */
+  risks?: string[];
 }
 
 export interface EvaluateResult {
@@ -30,6 +32,11 @@ export function evaluate(idea: string, personas: PersonaWithId[]): EvaluateResul
       verdict,
       opinion,
       guiding_questions_considered: considered,
+      risks: [
+        `Execution risk: validate scope and capacity from ${p.role} perspective`,
+        `Market timing: validate demand and readiness`,
+        `Resource constraint: validate feasibility given your domain`,
+      ],
     };
   });
 

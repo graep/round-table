@@ -10,6 +10,8 @@ interface IdeaFormProps {
 }
 
 const defaultContext = ['', '', ''];
+const defaultConstraint = [''];
+const defaultAssumption = [''];
 
 export function IdeaForm({ onSubmit, disabled, ideaOneLiner: controlledOneLiner, onIdeaOneLinerChange }: IdeaFormProps) {
   const [internalOneLiner, setInternalOneLiner] = useState('');
@@ -21,21 +23,23 @@ export function IdeaForm({ onSubmit, disabled, ideaOneLiner: controlledOneLiner,
   const [contextBullets, setContextBullets] = useState<string[]>(defaultContext);
   const [targetCustomer, setTargetCustomer] = useState('');
   const [jobToBeDone, setJobToBeDone] = useState('');
-  const [constraints, setConstraints] = useState('');
-  const [assumptions, setAssumptions] = useState('');
+  const [constraints, setConstraints] = useState<string[]>(defaultConstraint);
+  const [assumptions, setAssumptions] = useState<string[]>(defaultAssumption);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = ideaOneLiner.trim();
     if (!trimmed) return;
     const bullets = contextBullets.map((b) => b.trim()).filter(Boolean);
+    const constraintList = constraints.map((c) => c.trim()).filter(Boolean);
+    const assumptionList = assumptions.map((a) => a.trim()).filter(Boolean);
     onSubmit({
       ideaOneLiner: trimmed,
       contextBullets: bullets.length ? bullets : [trimmed],
       targetCustomer: targetCustomer.trim(),
       jobToBeDone: jobToBeDone.trim(),
-      constraints: constraints.trim(),
-      assumptions: assumptions.trim(),
+      constraints: constraintList.length ? constraintList : [''],
+      assumptions: assumptionList.length ? assumptionList : [''],
     });
   };
 
@@ -43,6 +47,20 @@ export function IdeaForm({ onSubmit, disabled, ideaOneLiner: controlledOneLiner,
   const setContextBullet = (i: number, v: string) =>
     setContextBullets((b) => {
       const next = [...b];
+      next[i] = v;
+      return next;
+    });
+  const addConstraint = () => setConstraints((c) => [...c, '']);
+  const setConstraint = (i: number, v: string) =>
+    setConstraints((c) => {
+      const next = [...c];
+      next[i] = v;
+      return next;
+    });
+  const addAssumption = () => setAssumptions((a) => [...a, '']);
+  const setAssumption = (i: number, v: string) =>
+    setAssumptions((a) => {
+      const next = [...a];
       next[i] = v;
       return next;
     });
@@ -108,31 +126,39 @@ export function IdeaForm({ onSubmit, disabled, ideaOneLiner: controlledOneLiner,
         className={styles.input}
       />
 
-      <label htmlFor="constraints" className={styles.label}>
-        Constraints
-      </label>
-      <input
-        id="constraints"
-        type="text"
-        value={constraints}
-        onChange={(e) => setConstraints(e.target.value)}
-        placeholder="Budget, time, skills, region, stack..."
-        disabled={disabled}
-        className={styles.input}
-      />
+      <label className={styles.label}>Constraints</label>
+      {constraints.map((constraint, i) => (
+        <input
+          key={i}
+          id={i === 0 ? 'constraints' : undefined}
+          type="text"
+          value={constraint}
+          onChange={(e) => setConstraint(i, e.target.value)}
+          placeholder={i === 0 ? 'Budget, time, skills, region, stack...' : `Constraint ${i + 1}`}
+          disabled={disabled}
+          className={styles.inputBullet}
+        />
+      ))}
+      <button type="button" onClick={addConstraint} className={styles.linkButton} disabled={disabled}>
+        + Add constraint
+      </button>
 
-      <label htmlFor="assumptions" className={styles.label}>
-        Assumptions
-      </label>
-      <input
-        id="assumptions"
-        type="text"
-        value={assumptions}
-        onChange={(e) => setAssumptions(e.target.value)}
-        placeholder="e.g. Consultants will pay for tools; they use calendar and invoicing today"
-        disabled={disabled}
-        className={styles.input}
-      />
+      <label className={styles.label}>Assumptions</label>
+      {assumptions.map((assumption, i) => (
+        <input
+          key={i}
+          id={i === 0 ? 'assumptions' : undefined}
+          type="text"
+          value={assumption}
+          onChange={(e) => setAssumption(i, e.target.value)}
+          placeholder={i === 0 ? 'e.g. Consultants will pay for tools; they use calendar and invoicing today' : `Assumption ${i + 1}`}
+          disabled={disabled}
+          className={styles.inputBullet}
+        />
+      ))}
+      <button type="button" onClick={addAssumption} className={styles.linkButton} disabled={disabled}>
+        + Add assumption
+      </button>
 
       <button type="submit" disabled={disabled || !valid} className={styles.button}>
         Run panel

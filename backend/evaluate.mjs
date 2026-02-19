@@ -29,7 +29,12 @@ ${idea}
 ---
 
 Respond with valid JSON only, no markdown or extra text:
-{"verdict": "strong"|"neutral"|"weak", "opinion": "2-4 sentences of concrete analysis"}`;
+{
+  "verdict": "strong"|"neutral"|"weak",
+  "opinion": "2-4 sentences of concrete analysis",
+  "topRisks": ["risk or concern 1: what to validate or do", "risk 2: ...", "risk 3: ..."]
+}
+Give 2-4 top risks from your expert lens; each item should be a short phrase (e.g. "Execution risk: validate team capacity and timeline" or "Market timing: test demand before scaling").`;
 }
 
 async function evaluateWithOpenAI(idea, personas) {
@@ -66,6 +71,10 @@ async function evaluateWithOpenAI(idea, personas) {
         ? parsed.verdict.toLowerCase()
         : 'neutral';
       const opinion = typeof parsed.opinion === 'string' ? parsed.opinion : String(parsed.opinion || content);
+      const rawRisks = parsed.topRisks;
+      const risks = Array.isArray(rawRisks)
+        ? rawRisks.slice(0, 5).map((r) => (typeof r === 'string' && r.trim() ? r.trim() : null)).filter(Boolean)
+        : [];
 
       return {
         personaId: p.id,
@@ -74,6 +83,7 @@ async function evaluateWithOpenAI(idea, personas) {
         verdict,
         opinion,
         guiding_questions_considered: (p.guiding_questions || []).slice(0, 3),
+        risks: risks.length > 0 ? risks : undefined,
       };
     })
   );
@@ -95,7 +105,15 @@ async function evaluateWithOpenAI(idea, personas) {
     aiUsed: true,
   };
   } catch (err) {
-    console.warn('OpenAI evaluation failed, using placeholder:', err?.message || err);
+    const status = err?.status ?? err?.response?.status;
+    const msg = err?.message || String(err);
+    if (status === 401) {
+      console.error('OpenAI: Invalid API key (401). Check OPENAI_API_KEY in backend/.env');
+    } else if (status === 429 || /rate limit|quota|insufficient_quota/i.test(msg)) {
+      console.error('OpenAI: Rate limit or quota exceeded. Check usage and billing at https://platform.openai.com/usage');
+    } else {
+      console.error('OpenAI evaluation failed, using placeholder:', msg);
+    }
     return null;
   }
 }
@@ -106,6 +124,11 @@ function evaluatePlaceholder(idea, personas) {
     const considered = questions.slice(0, 3);
     const verdict = deriveVerdict(idea, p);
     const opinion = buildOpinion(p, verdict);
+    const risks = [
+      `Execution risk: validate scope and capacity from ${p.role} perspective`,
+      `Market timing: validate demand and readiness`,
+      `Resource constraint: validate feasibility given your domain`,
+    ];
     return {
       personaId: p.id,
       role: p.role,
@@ -113,6 +136,7 @@ function evaluatePlaceholder(idea, personas) {
       verdict,
       opinion,
       guiding_questions_considered: considered,
+      risks,
     };
   });
 

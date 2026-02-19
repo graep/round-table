@@ -1,12 +1,80 @@
-import type { RoundTableReport } from '../types/round-table';
+import { useState } from 'react';
+import type { RoundTableReport, Phase1Take, DebateOnTake } from '../types/round-table';
+import type { PersonaWithId } from '@shared/types/persona';
+import { runDebate } from '../api/client';
 import styles from './RoundTableReportView.module.css';
 
 interface RoundTableReportViewProps {
   report: RoundTableReport;
+  panelPersonas: PersonaWithId[];
+  ideaText: string;
+  onDebateComplete: (session: DebateOnTake) => void;
 }
 
-export function RoundTableReportView({ report }: RoundTableReportViewProps) {
+function phase1TakeToText(take: Phase1Take): string {
+  const parts = [
+    take.thesis,
+    ...(take.points ?? []),
+  ].filter(Boolean);
+  return parts.join('\n');
+}
+
+export function RoundTableReportView({ report, panelPersonas, ideaText, onDebateComplete }: RoundTableReportViewProps) {
   const { idea, phase0, phase1, phase2, phase3, aiUsed } = report;
+  const [debateTarget, setDebateTarget] = useState<Phase1Take | null>(null);
+  const [respondentIds, setRespondentIds] = useState<Set<string>>(new Set());
+  const [debateLoading, setDebateLoading] = useState(false);
+  const [debateError, setDebateError] = useState<string | null>(null);
+
+  const openDebateModal = (take: Phase1Take) => {
+    setDebateTarget(take);
+    setRespondentIds(new Set());
+    setDebateError(null);
+  };
+
+  const closeDebateModal = () => {
+    setDebateTarget(null);
+    setDebateLoading(false);
+    setDebateError(null);
+  };
+
+  const toggleRespondent = (id: string) => {
+    if (!debateTarget || id === debateTarget.personaId) return;
+    setRespondentIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const runDebateForTake = async () => {
+    if (!debateTarget || respondentIds.size === 0) return;
+    setDebateLoading(true);
+    setDebateError(null);
+    try {
+      const phase1TakeText = phase1TakeToText(debateTarget);
+      const result = await runDebate({
+        idea: ideaText,
+        phase1TakeText,
+        targetRole: debateTarget.role,
+        targetPersonaId: debateTarget.personaId,
+        respondentPersonaIds: Array.from(respondentIds),
+      });
+      const session: DebateOnTake = {
+        targetPersonaId: debateTarget.personaId,
+        targetRole: debateTarget.role,
+        initialTakeSummary: phase1TakeText.slice(0, 200) + (phase1TakeText.length > 200 ? '…' : ''),
+        respondentResponses: result.responses,
+      };
+      onDebateComplete(session);
+      closeDebateModal();
+    } catch (e) {
+      setDebateError(e instanceof Error ? e.message : 'Debate failed');
+    } finally {
+      setDebateLoading(false);
+    }
+  };
 
   return (
     <article className={styles.article}>
@@ -14,7 +82,7 @@ export function RoundTableReportView({ report }: RoundTableReportViewProps) {
       <p className={styles.purpose}>Evaluate an idea with multiple expert perspectives, structured debate, and an actionable verdict.</p>
       {aiUsed === false && (
         <div className={styles.aiBanner} role="alert">
-          <strong>Template mode:</strong> AI evaluation is unavailable. Add <code>OPENAI_API_KEY</code> to <code>backend/.env</code> and restart. Check the backend terminal for errors.
+          <strong>Local mode:</strong> Expert opinions are placeholders. For AI-generated takes, set <code>OPENAI_API_KEY</code> in <code>backend/.env</code> and restart the backend.
         </div>
       )}
 
@@ -33,8 +101,8 @@ export function RoundTableReportView({ report }: RoundTableReportViewProps) {
           </li>
           <li><strong>Target customer:</strong> {idea.targetCustomer || '—'}</li>
           <li><strong>Primary job-to-be-done:</strong> {idea.jobToBeDone || '—'}</li>
-          <li><strong>Constraints:</strong> {idea.constraints || '—'}</li>
-          <li><strong>Assumptions:</strong> {idea.assumptions || '—'}</li>
+          <li><strong>Constraints:</strong> {idea.constraints?.filter(Boolean).length ? idea.constraints.filter(Boolean).join('; ') : '—'}</li>
+          <li><strong>Assumptions:</strong> {idea.assumptions?.filter(Boolean).length ? idea.assumptions.filter(Boolean).join('; ') : '—'}</li>
         </ul>
       </section>
 
@@ -62,7 +130,17 @@ export function RoundTableReportView({ report }: RoundTableReportViewProps) {
         <p className={styles.sectionHint}>Each role gives an independent view. Risks + opportunities + what would make it succeed.</p>
         {phase1.map((take) => (
           <div key={take.personaId} className={styles.takeCard}>
-            <h4 className={styles.takeRole}>{take.role}</h4>
+            <div className={styles.takeCardHeader}>
+              <h4 className={styles.takeRole}>{take.role}</h4>
+              <button
+                type="button"
+                className={styles.debateButton}
+                onClick={() => openDebateModal(take)}
+                aria-label={`Get expert opinions on ${take.role}'s take`}
+              >
+                Debate
+              </button>
+            </div>
             {take.thesis && <p className={styles.thesis}>{take.thesis}</p>}
             {take.points?.length > 0 && (
               <ul className={styles.takePoints}>
@@ -85,33 +163,64 @@ export function RoundTableReportView({ report }: RoundTableReportViewProps) {
         ))}
       </section>
 
-      {/* Phase 2 — Debate */}
+      {/* Phase 2 — Debate (opinions on Phase 1 takes) */}
       <section className={styles.section}>
-        <h3 className={styles.phaseTitle}>Phase 2 — Debate (two rounds)</h3>
-        <div className={styles.debate}>
-          <h4>Round 1 — Core strategy tradeoffs</h4>
-          <p className={styles.prompt}>{phase2.round1Prompt}</p>
-          <ul className={styles.debateTakes}>
-            {Object.entries(phase2.round1Takes).map(([role, text]) => (
-              <li key={role}><strong>{role}:</strong> {text}</li>
-            ))}
-          </ul>
-          <div className={styles.synthesis}>
-            <p><strong>Synthesis</strong> — Agreements: {phase2.round1Synthesis.agreements.join(' ')} Disagreements: {phase2.round1Synthesis.disagreements.join(' ')} Leaning: {phase2.round1Synthesis.leaning}</p>
-          </div>
+        <h3 className={styles.phaseTitle}>Phase 2 — Debate</h3>
+        <p className={styles.sectionHint}>Expert opinions on specific Phase 1 takes. Use the Debate button next to a take to choose which experts respond.</p>
+        {phase2.debateSessions.length === 0 ? (
+          <p className={styles.debateEmpty}>No debate sessions yet. Click <strong>Debate</strong> next to any Phase 1 take to select experts and get their opinions on that take.</p>
+        ) : (
+          phase2.debateSessions.map((session, idx) => (
+            <div key={`${session.targetPersonaId}-${idx}`} className={styles.debateSession}>
+              <h4 className={styles.debateSessionTitle}>Responses to {session.targetRole}&apos;s take</h4>
+              <ul className={styles.debateTakes}>
+                {session.respondentResponses.map((r) => (
+                  <li key={r.personaId}><strong>{r.role}:</strong> {r.response}</li>
+                ))}
+              </ul>
+            </div>
+          ))
+        )}
+      </section>
 
-          <h4>Round 2 — Wedge + GTM specifics</h4>
-          <p className={styles.prompt}>{phase2.round2Prompt}</p>
-          <ul className={styles.debateTakes}>
-            {Object.entries(phase2.round2Takes).map(([role, text]) => (
-              <li key={role}><strong>{role}:</strong> {text}</li>
-            ))}
-          </ul>
-          <div className={styles.synthesis}>
-            <p><strong>Synthesis</strong> — Chosen wedge: {phase2.round2Synthesis.chosenWedge}. ICP: {phase2.round2Synthesis.chosenIcp}. Differentiator: {phase2.round2Synthesis.differentiator}</p>
+      {/* Debate modal */}
+      {debateTarget && (
+        <div className={styles.modalBackdrop} role="dialog" aria-modal="true" aria-labelledby="debate-modal-title">
+          <div className={styles.modal}>
+            <h3 id="debate-modal-title" className={styles.modalTitle}>Get opinions on {debateTarget.role}&apos;s take</h3>
+            <p className={styles.modalHint}>Select which experts should respond to this initial take.</p>
+            <div className={styles.modalExperts}>
+              {panelPersonas
+                .filter((p) => p.id !== debateTarget.personaId)
+                .map((p) => (
+                  <label key={p.id} className={styles.modalExpertLabel}>
+                    <input
+                      type="checkbox"
+                      checked={respondentIds.has(p.id)}
+                      onChange={() => toggleRespondent(p.id)}
+                      disabled={debateLoading}
+                    />
+                    <span className={styles.modalExpertRole}>{p.role}</span>
+                  </label>
+                ))}
+            </div>
+            {debateError && <p className={styles.debateError} role="alert">{debateError}</p>}
+            <div className={styles.modalActions}>
+              <button type="button" className={styles.modalCancel} onClick={closeDebateModal} disabled={debateLoading}>
+                Cancel
+              </button>
+              <button
+                type="button"
+                className={styles.modalSubmit}
+                onClick={runDebateForTake}
+                disabled={respondentIds.size === 0 || debateLoading}
+              >
+                {debateLoading ? 'Running…' : 'Run debate'}
+              </button>
+            </div>
           </div>
         </div>
-      </section>
+      )}
 
       {/* Phase 3 — Verdict & action plan */}
       <section className={styles.section}>

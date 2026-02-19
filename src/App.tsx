@@ -1,30 +1,34 @@
 import { useState, useEffect } from 'react';
 import { loadPersonas } from './lib/personas';
+import { listPersonas } from './api/client';
 import type { PersonaWithId } from '@shared/types/persona';
 import type { IdeaUnderReview } from './types/round-table';
-import { suggestSecurity } from './types/round-table';
 import { buildRoundTableReport, fullIdeaText } from './lib/build-report';
 import type { RoundTableReport } from './types/round-table';
 import { evaluateIdea } from './api/client';
+import { evaluate } from './lib/evaluate';
 import { PanelSelector } from './components/PanelSelector';
 import { IdeaForm } from './components/IdeaForm';
 import { RoundTableReportView } from './components/RoundTableReportView';
 import { CORE_PANEL_IDS, SECURITY_PERSONA_ID } from './types/round-table';
 import styles from './App.module.css';
 
-const API_BASE = import.meta.env.VITE_API_URL;
+const API_BASE = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? '/api' : undefined);
 
 export default function App() {
   const [personas, setPersonas] = useState<PersonaWithId[]>([]);
+  const [customPersonas, setCustomPersonas] = useState<PersonaWithId[]>([]);
   const [ideaOneLiner, setIdeaOneLiner] = useState('');
-  const [includeSecurity, setIncludeSecurity] = useState(false);
+  const [additionalPanelIds, setAdditionalPanelIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [report, setReport] = useState<RoundTableReport | null>(null);
+  const [panelPersonas, setPanelPersonas] = useState<PersonaWithId[]>([]);
   const [evaluating, setEvaluating] = useState(false);
 
   useEffect(() => {
-    loadPersonas()
+    const load = API_BASE ? listPersonas : loadPersonas;
+    load()
       .then(setPersonas)
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load experts'))
       .finally(() => setLoading(false));
@@ -34,17 +38,21 @@ export default function App() {
     setError(null);
     setEvaluating(true);
     try {
-      const panelPersonas = personas.filter(
-        (p) =>
-          CORE_PANEL_IDS.includes(p.id as (typeof CORE_PANEL_IDS)[number]) ||
-          (includeSecurity && p.id === SECURITY_PERSONA_ID),
-      );
-      const personaIds = panelPersonas.map((p) => p.id);
+      const allPersonas = [...personas, ...customPersonas];
+      const panelPersonaIds = [
+        ...CORE_PANEL_IDS,
+        SECURITY_PERSONA_ID,
+        ...additionalPanelIds,
+      ];
+      const panelPersonasForRun = allPersonas.filter((p) => panelPersonaIds.includes(p.id));
       const ideaText = fullIdeaText(idea);
-      const evalResult = API_BASE
-        ? await evaluateIdea({ idea: ideaText, personaIds })
-        : undefined;
-      const reportResult = buildRoundTableReport(idea, personas, includeSecurity, evalResult);
+      const hasCustomInPanel = panelPersonasForRun.some((p) => !personas.some((b) => b.id === p.id));
+      const evalResult =
+        API_BASE && !hasCustomInPanel
+          ? await evaluateIdea({ idea: ideaText, personaIds: panelPersonaIds })
+          : evaluate(ideaText, panelPersonasForRun);
+      const reportResult = buildRoundTableReport(idea, allPersonas, panelPersonaIds, true, evalResult);
+      setPanelPersonas(panelPersonasForRun);
       setReport(reportResult);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Evaluation failed');
@@ -89,7 +97,19 @@ export default function App() {
             ← New idea
           </button>
         </header>
-        <RoundTableReportView report={report} />
+        <RoundTableReportView
+          report={report}
+          panelPersonas={panelPersonas}
+          ideaText={fullIdeaText(report.idea)}
+          onDebateComplete={(session) => {
+            setReport({
+              ...report,
+              phase2: {
+                debateSessions: [...report.phase2.debateSessions, session],
+              },
+            });
+          }}
+        />
       </div>
     );
   }
@@ -110,9 +130,15 @@ export default function App() {
         />
         <PanelSelector
           personas={personas}
-          includeSecurity={includeSecurity}
-          securitySuggested={suggestSecurity(ideaOneLiner)}
-          onIncludeSecurityChange={setIncludeSecurity}
+          customPersonas={customPersonas}
+          additionalPanelIds={additionalPanelIds}
+          onAddExpert={(id) => setAdditionalPanelIds((prev) => (prev.includes(id) ? prev : [...prev, id]))}
+          onRemoveExpert={(id) => setAdditionalPanelIds((prev) => prev.filter((x) => x !== id))}
+          onAddCustomExpert={(persona) => {
+            setCustomPersonas((prev) => (prev.some((p) => p.id === persona.id) ? prev : [...prev, persona]));
+            setAdditionalPanelIds((prev) => (prev.includes(persona.id) ? prev : [...prev, persona.id]));
+          }}
+          onPersonaCreated={API_BASE ? async () => { const next = await listPersonas(); setPersonas(next); } : undefined}
         />
         {evaluating && <p className={styles.loadingInline}>Evaluating with AI…</p>}
         {error && <p className={styles.errorInline}>{error}</p>}

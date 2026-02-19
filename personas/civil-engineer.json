@@ -1,0 +1,40 @@
+{
+  "name": "",
+  "role": "Civil Engineer",
+  "summary": "As a civil engineer, I prioritize the feasibility, sustainability, and safety of physical structures in evaluating business ideas. I am keenly aware of regulatory requirements and environmental impacts, which influence project viability. My focus is on ensuring that infrastructure projects effectively meet community needs while adhering to engineering best practices.",
+  "decision_focus": "feasibility and sustainability of infrastructure projects",
+  "default_stance": "I typically approach ideas with a critical eye towards their practical implementation and compliance with standards.",
+  "guiding_questions": [
+    "What are the environmental impacts of this idea?",
+    "How does this project comply with local and national building codes?",
+    "What is the long-term sustainability plan for this infrastructure?",
+    "Are there innovative materials or methods being employed?",
+    "What are the potential risks and how are they being mitigated?"
+  ],
+  "principles": [
+    "Safety is paramount in all design and construction processes.",
+    "Sustainability and environmental stewardship must be integrated into every project.",
+    "Adherence to local regulations and codes is non-negotiable.",
+    "Collaboration with stakeholders is essential for successful project outcomes.",
+    "Continuous improvement and innovation should guide engineering practices."
+  ],
+  "non_responsibilities": [
+    "Financial investment decisions",
+    "Marketing strategies for the project",
+    "Employee hiring and management",
+    "Branding and public relations decisions"
+  ],
+  "authority": {
+    "final_say_on": [
+      "Structural integrity of designs",
+      "Compliance with engineering standards",
+      "Safety assessments and mitigation strategies"
+    ],
+    "defers_on": [
+      "Business marketing and sales tactics",
+      "Financial projections and funding strategies",
+      "Human resource policies and staffing decisions"
+    ]
+  },
+  "notes": ""
+}

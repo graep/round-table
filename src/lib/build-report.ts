@@ -18,8 +18,8 @@ export function fullIdeaText(idea: IdeaUnderReview): string {
     ...(idea.contextBullets ?? []),
     idea.targetCustomer,
     idea.jobToBeDone,
-    idea.constraints,
-    idea.assumptions,
+    ...(idea.constraints ?? []),
+    ...(idea.assumptions ?? []),
   ].filter(Boolean);
   return parts.join(' ');
 }
@@ -27,13 +27,11 @@ export function fullIdeaText(idea: IdeaUnderReview): string {
 export function buildRoundTableReport(
   idea: IdeaUnderReview,
   personas: PersonaWithId[],
+  panelPersonaIds: string[],
   includeSecurity: boolean,
   evalResult?: EvaluateResult,
 ): RoundTableReport {
-  const coreIds = ['ceo', 'marketing-expert', 'product-manager', 'cpa', 'business-attorney', 'critic'];
-  const panelPersonas = personas.filter(
-    (p) => coreIds.includes(p.id) || (includeSecurity && p.id === 'security-compliance-officer'),
-  );
+  const panelPersonas = personas.filter((p) => panelPersonaIds.includes(p.id));
   const text = fullIdeaText(idea);
   const securitySuggested = suggestSecurity(text);
 
@@ -64,30 +62,21 @@ export function buildRoundTableReport(
     const opinion = evalResultToUse.expertOpinions.find((o) => o.personaId === p.id);
     const thesis = opinion?.opinion ?? p.default_stance ?? 'See perspective.';
     const points = (p.guiding_questions ?? []).slice(0, 3);
+    const risks =
+      opinion?.risks && opinion.risks.length > 0
+        ? opinion.risks
+        : ['Execution risk', 'Market timing', 'Resource constraint'];
     return {
       role: p.role,
       personaId: p.id,
       thesis,
       points: points.length > 0 ? points : [thesis],
-      risks: ['Execution risk', 'Market timing', 'Resource constraint'].map((r) => `${r}: validate.`),
+      risks,
     };
   });
 
   const phase2: Phase2Debate = {
-    round1Prompt: 'Core strategy tradeoffs: service-first vs product-first? SMB vs mid-market?',
-    round1Takes: Object.fromEntries(panelPersonas.map((p) => [p.role, evalResultToUse.expertOpinions.find((o) => o.personaId === p.id)?.opinion ?? '—'])),
-    round1Synthesis: {
-      agreements: ['Idea is worth stress-testing.'],
-      disagreements: ['Positioning and wedge need clarity.'],
-      leaning: 'Go with conditions; narrow ICP and validate pricing.',
-    },
-    round2Prompt: "Wedge and GTM: what's the first offer and how do we get distribution?",
-    round2Takes: Object.fromEntries(panelPersonas.map((p) => [p.role, 'Focus on one wedge; validate with 5–10 target customers.'])),
-    round2Synthesis: {
-      chosenWedge: idea.ideaOneLiner,
-      chosenIcp: idea.targetCustomer || 'To be defined',
-      differentiator: idea.jobToBeDone || 'To be defined',
-    },
+    debateSessions: [],
   };
 
   const verdictFromEval = (): VerdictType => {

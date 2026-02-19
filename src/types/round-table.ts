@@ -7,8 +7,8 @@ export interface IdeaUnderReview {
   contextBullets: string[];
   targetCustomer: string;
   jobToBeDone: string;
-  constraints: string;
-  assumptions: string;
+  constraints: string[];
+  assumptions: string[];
 }
 
 /** Template panel: core 6 always, Security conditional */
@@ -64,13 +64,24 @@ export interface Phase1Take {
   risks?: string[];
 }
 
+/** One expert's response to another expert's Phase 1 take */
+export interface DebateResponse {
+  personaId: string;
+  role: string;
+  response: string;
+}
+
+/** Debate session: selected experts give opinions on one expert's initial take */
+export interface DebateOnTake {
+  targetPersonaId: string;
+  targetRole: string;
+  /** Summary of the initial take (thesis + key points) for display */
+  initialTakeSummary: string;
+  respondentResponses: DebateResponse[];
+}
+
 export interface Phase2Debate {
-  round1Prompt: string;
-  round1Takes: Record<string, string>;
-  round1Synthesis: { agreements: string[]; disagreements: string[]; leaning: string };
-  round2Prompt: string;
-  round2Takes: Record<string, string>;
-  round2Synthesis: { chosenWedge: string; chosenIcp: string; differentiator: string };
+  debateSessions: DebateOnTake[];
 }
 
 export type VerdictType = 'GO' | 'GO-WITH-CONDITIONS' | 'PIVOT' | 'NO-GO';
