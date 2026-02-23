@@ -1,14 +1,79 @@
 .layout {
-  max-width: 900px;
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.sidebar {
+  width: var(--sidebar-width);
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  transition: transform 0.3s ease;
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    display: none; /* Simple mobile hide for now, could be drawer */
+  }
+}
+
+.contentWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.mainHeader {
+  height: var(--header-height);
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+
+.mainTitle {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.mainSubtitle {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.main {
+  padding: 2rem;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 2rem 1.5rem;
+  width: 100%;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .loading,
 .error {
-  text-align: center;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   padding: 2rem;
-  color: var(--muted);
+  text-align: center;
 }
 
 .error {
@@ -16,21 +81,22 @@
 }
 
 .errorHint {
-  margin-top: 0.75rem;
-  font-size: 0.9rem;
+  margin-top: 1rem;
+  font-size: 0.875rem;
   color: var(--muted);
 }
 
 .errorHint code {
   background: var(--surface);
-  padding: 0.15rem 0.4rem;
+  padding: 0.2rem 0.4rem;
   border-radius: 4px;
 }
 
 .loadingInline,
 .errorInline {
-  margin: 0.75rem 0 0 0;
-  font-size: 0.9rem;
+  margin: 1rem 0;
+  font-size: 0.875rem;
+  text-align: center;
 }
 
 .errorInline {
@@ -41,39 +107,61 @@
   color: var(--muted);
 }
 
-.header {
-  margin-bottom: 2rem;
-}
-
-.title {
-  margin: 0 0 0.25rem 0;
-  font-size: 1.75rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.subtitle {
-  margin: 0;
-  color: var(--muted);
-  font-size: 1rem;
-}
-
-.main {
-  display: flex;
-  flex-direction: column;
-}
-
 .backButton {
-  margin-top: 0.5rem;
-  padding: 0.4rem 0.75rem;
+  padding: 0.4rem 0.8rem;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 6px;
   color: var(--text);
-  font-size: 0.9rem;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
 }
 
 .backButton:hover {
   border-color: var(--accent);
-  color: var(--accent);
+  background: rgba(167, 139, 250, 0.05);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.printButton {
+  padding: 0.4rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.printButton:hover {
+  border-color: var(--accent);
+  background: rgba(167, 139, 250, 0.05);
+}
+
+/* Skeleton Styles */
+.skeleton {
+  background: linear-gradient(90deg, var(--surface) 25%, var(--border) 50%, var(--surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media print {
+  .main {
+    max-width: none;
+    padding: 0;
+  }
 }

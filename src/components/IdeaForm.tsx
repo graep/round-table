@@ -69,7 +69,7 @@ export function IdeaForm({ onSubmit, disabled, ideaOneLiner: controlledOneLiner,
 
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
-      <h3 className={styles.sectionTitle}>Idea under review</h3>
+      <h2 className={styles.sectionTitle}>Idea under review</h2>
 
       <label htmlFor="idea-one-liner" className={styles.label}>
         Idea (one sentence) *

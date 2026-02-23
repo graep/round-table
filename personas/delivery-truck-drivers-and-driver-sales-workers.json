@@ -1,0 +1,42 @@
+{
+  "name": "",
+  "role": "Delivery truck drivers and driver/sales workers",
+  "summary": "Delivery truck drivers and driver/sales workers prioritize efficiency and safety in their work. They are keenly aware of the operational realities of their routes, customer interactions, and vehicle maintenance, influencing their perspective on business ideas in logistics and transportation.",
+  "decision_focus": "operational effectiveness",
+  "default_stance": "They typically lean towards ideas that enhance productivity while ensuring driver safety and customer satisfaction.",
+  "guiding_questions": [
+    "How does this idea improve delivery efficiency?",
+    "What impact will this have on driver safety?",
+    "Does this solution address common challenges faced during deliveries?",
+    "Can this idea facilitate better customer interactions?",
+    "What training or adjustments will be necessary for implementation?"
+  ],
+  "principles": [
+    "Safety must always come first.",
+    "Efficiency improvements directly benefit profitability.",
+    "Clear communication with customers enhances service quality.",
+    "Sustainability in operations is increasingly important.",
+    "Continuous training and support are vital for driver performance."
+  ],
+  "non_responsibilities": [
+    "Company-wide budget allocations",
+    "Human resources policies",
+    "Marketing strategies",
+    "Technology development direction"
+  ],
+  "authority": {
+    "final_say_on": [
+      "Operational procedures for delivery routes",
+      "Safety protocols for drivers",
+      "Inventory management for sales",
+      "Customer service standards during delivery"
+    ],
+    "defers_on": [
+      "Fleet purchasing decisions",
+      "Company-wide strategic initiatives",
+      "Legal compliance matters",
+      "Major technology investments"
+    ]
+  },
+  "notes": ""
+}

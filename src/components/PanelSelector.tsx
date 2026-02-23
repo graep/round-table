@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import type { PersonaWithId } from '@shared/types/persona';
 import { CORE_PANEL_IDS, SECURITY_PERSONA_ID } from '../types/round-table';
-import { EXPERT_ROLE_SUGGESTIONS } from '../lib/expert-role-suggestions';
+import blsOccupations from '../data/bls-occupations.json';
 import { createPersonaForRole } from '../api/client';
 import styles from './PanelSelector.module.css';
 
@@ -60,7 +60,7 @@ export function PanelSelector({
 
   const allRoleSuggestions: SuggestionItem[] = [
     ...optionalPersonas.map((p) => ({ type: 'existing' as const, persona: p })),
-    ...EXPERT_ROLE_SUGGESTIONS.filter(
+    ...(blsOccupations as string[]).filter(
       (role) => !optionalPersonas.some((p) => p.role.toLowerCase() === role.toLowerCase()),
     ).map((role) => ({ type: 'role' as const, role })),
   ];
@@ -240,7 +240,7 @@ export function PanelSelector({
         </button>
         {addExpertOpen && (
           <div className={styles.addExpertDropdown}>
-            <p className={styles.addExpertHint}>Type an expert role; pick a suggestion to add an existing expert or use the button to create one from the template.</p>
+            <p className={styles.addExpertHint}>Type an expert role (suggestions from BLS Occupational Outlook Handbook); pick one to add an existing expert or generate a new one.</p>
             <div className={styles.autocompleteWrap} ref={dropdownRef}>
               <input
                 ref={inputRef}

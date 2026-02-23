@@ -134,7 +134,7 @@ export function RoundTableReportView({ report, panelPersonas, ideaText, onDebate
               <h4 className={styles.takeRole}>{take.role}</h4>
               <button
                 type="button"
-                className={styles.debateButton}
+                className={`${styles.debateButton} no-print`}
                 onClick={() => openDebateModal(take)}
                 aria-label={`Get expert opinions on ${take.role}'s take`}
               >
@@ -185,7 +185,7 @@ export function RoundTableReportView({ report, panelPersonas, ideaText, onDebate
 
       {/* Debate modal */}
       {debateTarget && (
-        <div className={styles.modalBackdrop} role="dialog" aria-modal="true" aria-labelledby="debate-modal-title">
+        <div className={`${styles.modalBackdrop} no-print`} role="dialog" aria-modal="true" aria-labelledby="debate-modal-title">
           <div className={styles.modal}>
             <h3 id="debate-modal-title" className={styles.modalTitle}>Get opinions on {debateTarget.role}&apos;s take</h3>
             <p className={styles.modalHint}>Select which experts should respond to this initial take.</p>

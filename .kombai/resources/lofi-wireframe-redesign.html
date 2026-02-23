@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Round Table Redesign — Balanced Approach</title>
+    <style>
+        :root {
+            --bg: #ffffff;
+            --text: #000000;
+            --muted: #666666;
+            --border: #cccccc;
+            --surface: #f5f5f5;
+            --accent: #333333;
+        }
+        body {
+            font-family: "Comic Sans MS", cursive, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+        }
+        aside {
+            width: 280px;
+            border-right: 2px solid var(--border);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            background: var(--surface);
+        }
+        main {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+        .header {
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 10px;
+        }
+        .title { font-size: 24px; font-weight: bold; margin: 0; }
+        .subtitle { color: var(--muted); font-size: 14px; }
+        
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 20px;
+        }
+        .box {
+            border: 2px solid var(--border);
+            padding: 20px;
+            border-radius: 8px;
+            position: relative;
+        }
+        .span-8 { grid-column: span 8; }
+        .span-4 { grid-column: span 4; }
+        .span-6 { grid-column: span 6; }
+        .span-12 { grid-column: span 12; }
+
+        .badge {
+            position: absolute;
+            top: -10px;
+            right: 10px;
+            background: #4CAF50;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            z-index: 10;
+        }
+        .badge-new { background: #FF9800; }
+
+        .expert-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+        .expert-item:last-child { border-bottom: none; }
+        .expert-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #ddd;
+            margin-right: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .input-box {
+            width: 100%;
+            border: 1px solid var(--border);
+            padding: 10px;
+            margin-top: 10px;
+            font-family: inherit;
+        }
+        .button {
+            background: #000;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        
+        h3 { margin-top: 0; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <aside>
+        <div style="position: relative;">
+            <span class="badge" title="src/components/PanelSelector.tsx">[REUSE] PanelSelector</span>
+            <h3>Experts Panel</h3>
+            <p class="subtitle">Managing the round table</p>
+            <div style="margin-top: 20px;">
+                <div class="expert-item"><div class="expert-avatar"></div> CEO</div>
+                <div class="expert-item"><div class="expert-avatar"></div> Marketing</div>
+                <div class="expert-item"><div class="expert-avatar"></div> Product Manager</div>
+                <div class="expert-item"><div class="expert-avatar"></div> CPA</div>
+                <div class="expert-item"><div class="expert-avatar"></div> Business Attorney</div>
+                <div class="expert-item"><div class="expert-avatar"></div> Critic</div>
+                <div class="expert-item"><div class="expert-avatar"></div> Security</div>
+            </div>
+            <button class="button" style="width: 100%; background: #eee; color: #000; border: 1px solid #ccc;">+ Add Expert</button>
+        </div>
+    </aside>
+
+    <main>
+        <div class="header">
+            <h1 class="title">Round Table</h1>
+            <p class="subtitle">Multi-expert deliberation for your next big idea.</p>
+        </div>
+
+        <div class="bento-grid">
+            <!-- Idea Form Section -->
+            <div class="box span-8">
+                <span class="badge" title="src/components/IdeaForm.tsx">[REUSE] IdeaForm</span>
+                <h3>The Idea</h3>
+                <label>One-sentence pitch</label>
+                <input type="text" class="input-box" placeholder="What's the core idea?">
+                
+                <div style="display: flex; gap: 20px; margin-top: 20px;">
+                    <div style="flex: 1;">
+                        <label>Target Customer</label>
+                        <input type="text" class="input-box" placeholder="Who is it for?">
+                    </div>
+                    <div style="flex: 1;">
+                        <label>Primary Job</label>
+                        <input type="text" class="input-box" placeholder="What problem does it solve?">
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <label>Context & Constraints</label>
+                    <textarea class="input-box" style="height: 80px;" placeholder="Add bullets here..."></textarea>
+                </div>
+
+                <button class="button">Run Panel Analysis</button>
+            </div>
+
+            <!-- Dashboard Stats / Summary Section -->
+            <div class="box span-4">
+                <span class="badge badge-new" title="New component for high-level summary stats">[NEW] ImpactSummary</span>
+                <h3>Initial Assessment</h3>
+                <div style="height: 100px; display: flex; align-items: center; justify-content: center; background: #eee; border: 1px dashed #999;">
+                    [Confidence Score: 78%]
+                </div>
+                <ul style="font-size: 13px; margin-top: 15px;">
+                    <li>✓ Viable Market</li>
+                    <li>! High Security Risk</li>
+                    <li>✓ Clear Value Prop</li>
+                </ul>
+            </div>
+
+            <!-- Phases Section -->
+            <div class="box span-12">
+                <span class="badge" title="src/components/RoundTableReportView.tsx">[REUSE] RoundTableReportView</span>
+                <h3>Recent Reports</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 10px;">
+                    <div style="border: 1px solid #ccc; padding: 10px;">
+                        <strong>CRM for Solo</strong>
+                        <p class="subtitle">"A lightweight tool..."</p>
+                        <small>Feb 18, 2026</small>
+                    </div>
+                    <div style="border: 1px solid #ccc; padding: 10px;">
+                        <strong>SaaS for Pets</strong>
+                        <p class="subtitle">"Tracking wellness..."</p>
+                        <small>Feb 15, 2026</small>
+                    </div>
+                    <div style="border: 1px solid #ccc; padding: 10px; background: #eee; border-style: dashed; display: flex; align-items: center; justify-content: center;">
+                        View All Reports
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
